@@ -78,6 +78,34 @@ def get_tagcloud(context, asvar, forvar=None):
         tag.weight = weight_fun(tag.num_times)
     context[asvar] = queryset
     return ''
+
+# {% get_similar_obects to product as similar_videos for metaphore.embeddedvideo %}
+@tag(register, [Constant('to'), Variable(), Constant('as'), Name(), Optional([Constant('for'), Model()])])
+def get_similar_objects(context, tovar, asvar, forvar=None):
+    if forvar:
+        assert hasattr(tovar, 'tags')
+    
+        tags = tovar.tags.all()
+    
+        from django.contrib.contenttypes.models import ContentType
+    
+        ct = ContentType.objects.get_for_model(forvar)
+
+        items = TaggedItem.objects.filter(content_type=ct, tag__in=tags)
+
+        from django.db.models import Count
+
+        ordered = items.values('object_id').annotate(Count('object_id')).order_by()
+
+        ordered_ids = map(lambda x: x['object_id'], ordered)
+        objects = ct.model_class().objects.filter(pk__in=ordered_ids)    
+        
+    else:
+        objects = tovar.tags.similar_objects()
+
+    context[asvar] = objects
+    
+    return ''
     
 def include_tagcloud(forvar=None):
     return {'forvar': forvar}
