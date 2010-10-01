@@ -58,6 +58,9 @@ No matter what you do, you have a list of tags in the ``tags`` template variable
     
 As you can see, each tag has an attribute ``num_times`` which declares how many times it was used. The list of tags is sorted descending by ``num_times``.
 
+Optionally, you can limit the amount of tags in the list:
+{% get_taglist as tags limit_to 10 %}
+
 Inclusion-Tag
 -------------
 

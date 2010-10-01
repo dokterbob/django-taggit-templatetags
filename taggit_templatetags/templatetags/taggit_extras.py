@@ -58,10 +58,16 @@ def get_weight_fun(t_min, t_max, f_min, f_max):
         return t_max - (f_max-f_i)*mult_fac
     return weight_fun
 
-@tag(register, [Constant('as'), Name(), Optional([Constant('for'), Variable()])])
-def get_taglist(context, asvar, forvar=None):
-    queryset = get_queryset(forvar)         
-    queryset = queryset.order_by('-num_times')        
+@tag(register, [Constant('as'), Name(), 
+                Optional([Constant('for'), Variable()]), 
+                Optional([Constant('limit_to'), Variable()])])
+def get_taglist(context, asvar, forvar=None, limitvar=None):
+    queryset = get_queryset(forvar)
+    queryset = queryset.order_by('-num_times')
+    
+    if limitvar:
+        queryset = queryset[:limitvar]
+    
     context[asvar] = queryset
     return ''
 
